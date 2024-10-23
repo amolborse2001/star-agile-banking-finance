@@ -46,6 +46,14 @@ pipeline {
                 sh 'docker push amol2001/banking-project-demo:3.0'
             }
         }
+        stage('Manual EC2 Instance Creation') {
+            steps {
+                script {
+                    echo 'Please create the EC2 instance manually before proceeding.'
+                    echo 'Ensure it has the correct security group and configuration.'
+                }
+            }
+        }
         stage('Config & Deployment') {
             steps {
                 withCredentials([
@@ -53,10 +61,12 @@ pipeline {
                     file(credentialsId: 'my-ec2-key', variable: 'KEY_FILE') // Use the new secret file credential
                 ]) {
                     dir('terraform-files') {
-                        sh "sudo chmod 600 ${KEY_FILE}" // Change permissions for the key file
-                        sh 'terraform init'
-                        sh 'terraform validate'
-                        sh 'terraform apply --auto-approve'
+                        // Commenting out the terraform commands since the instance will be created manually
+                        // sh "sudo chmod 600 ${KEY_FILE}" // Change permissions for the key file
+                        // sh 'terraform init'
+                        // sh 'terraform validate'
+                        // sh 'terraform apply --auto-approve'
+                        echo 'Skipping Terraform commands; instance created manually.'
                     }
                 }
             }
