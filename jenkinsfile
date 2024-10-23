@@ -46,18 +46,28 @@ pipeline {
                 sh 'docker push amol2001/banking-project-demo:3.0'
             }
         }
-        stage('Deploy to EC2 Instance') {
+        stage('Manual EC2 Instance Creation') {
             steps {
                 script {
-                    // Specify your EC2 instance details
-                    def ec2_ip = "34.235.114.169" // Public IP of your EC2 instance
-                    def key_file = "/path/to/your/mypermanentkey.pem" // Path to your SSH key
-
-                    // Execute commands on the EC2 instance
-                    sh """
-                    ssh -i ${key_file} ec2-user@${ec2_ip} 'docker pull amol2001/banking-project-demo:3.0 && \
-                    docker run -d -p 8084:8081 amol2001/banking-project-demo:3.0'
-                    """
+                    echo 'Please create the EC2 instance manually before proceeding.'
+                    echo 'Ensure it has the correct security group and configuration.'
+                }
+            }
+        }
+        stage('Config & Deployment') {
+            steps {
+                withCredentials([
+                    aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS-ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'),
+                    file(credentialsId: 'my-ec2-key', variable: 'KEY_FILE') // Use the new secret file credential
+                ]) {
+                    dir('terraform-files') {
+                        // Commenting out the terraform commands since the instance will be created manually
+                        // sh "sudo chmod 600 ${KEY_FILE}" // Change permissions for the key file
+                        // sh 'terraform init'
+                        // sh 'terraform validate'
+                        // sh 'terraform apply --auto-approve'
+                        echo 'Skipping Terraform commands; instance created manually.'
+                    }
                 }
             }
         }
