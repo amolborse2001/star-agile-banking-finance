@@ -1,8 +1,8 @@
 resource "aws_instance" "test-server" {
-  ami                    = "ami-06b21ccaeff8cd686"
+  ami                    = "ami-06b21ccaeff8cd686"  # Ensure this AMI ID is valid
   instance_type         = "t2.micro"
   key_name              = "mypermanentkey"
-  vpc_security_group_ids = ["sg-047cdca1ff3d954c2"]  # Use the selected security group ID
+  vpc_security_group_ids = ["sg-060380c5126332bf5"]  # Use the new security group ID
 
   connection {
     type        = "ssh"
