@@ -14,43 +14,41 @@ pipeline {
 
                 // Run Maven on a Unix agent.
                 sh "mvn -Dmaven.test.failure.ignore=true clean package"
-
             }        
         }
-       stage('Generate Test Reports') {
-           steps {
-               publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/var/lib/jenkins/workspace/BankingProject/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                    }
-            }
-       stage('Create Docker Image') {
-           steps {
-               sh 'docker build -t cbabu85/banking-project-demo:3.0 .'
-                    }
-                }
-       stage('Docker-Login') {
-           steps {
-               withCredentials([usernamePassword(credentialsId: 'Docker-login', passwordVariable: 'dockerpassword', usernameVariable: 'dockerlogin')]) { 
-               sh 'docker login -u ${dockerlogin} -p ${dockerpassword}'
-                                   }
-                        }
-                }
-       stage('Push-Image') {
-           steps {
-               sh 'docker push cbabu85/banking-project-demo:3.0'
-                     }
-                }
-       stage('Config & Deployment') {
+        stage('Generate Test Reports') {
             steps {
-                
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/var/lib/jenkins/workspace/BankingProject/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+            }
+        }
+        stage('Create Docker Image') {
+            steps {
+                sh 'docker build -t amol2001/banking-project-demo:3.0 .'
+            }
+        }
+        stage('Docker-Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Docker-login', passwordVariable: 'dockerpassword', usernameVariable: 'dockerlogin')]) { 
+                    sh 'docker login -u ${dockerlogin} -p ${dockerpassword}'
+                }
+            }
+        }
+        stage('Push-Image') {
+            steps {
+                sh 'docker push amol2001/banking-project-demo:3.0'
+            }
+        }
+        stage('Config & Deployment') {
+            steps {
                 withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS-ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     dir('terraform-files') {
-                    sh 'sudo chmod 600 mykey.pem'
-                    sh 'terraform init'
-                    sh 'terraform validate'
-                    sh 'terraform apply --auto-approve'
-}
+                        sh 'sudo chmod 600 mykey.pem'
+                        sh 'terraform init'
+                        sh 'terraform validate'
+                        sh 'terraform apply --auto-approve'
+                    }
+                }
+            }
+        }
     }
-}
-}
-}
 }
