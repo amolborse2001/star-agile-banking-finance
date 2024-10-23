@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Generate Test Reports') {
             steps {
-                publishHTML([
+                publishHTML([ 
                     allowMissing: false, 
                     alwaysLinkToLastBuild: false, 
                     keepAll: false, 
@@ -46,17 +46,9 @@ pipeline {
                 sh 'docker push amol2001/banking-project-demo:3.0'
             }
         }
-        stage('Manual EC2 Instance Creation') {
-            steps {
-                script {
-                    echo 'Please create the EC2 instance manually before proceeding.'
-                    echo 'Ensure it has the correct security group and configuration.'
-                }
-            }
-        }
         stage('Config & Deployment') {
             steps {
-                withCredentials([
+                withCredentials([ 
                     aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS-ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'),
                     file(credentialsId: 'my-ec2-key', variable: 'KEY_FILE') // Use the new secret file credential
                 ]) {
