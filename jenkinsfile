@@ -48,9 +48,12 @@ pipeline {
         }
         stage('Config & Deployment') {
             steps {
-               withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS-ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                withCredentials([
+                    aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AWS-ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'),
+                    file(credentialsId: 'my-ec2-key', variable: 'KEY_FILE') // Use the new secret file credential
+                ]) {
                     dir('terraform-files') {
-                        sh 'sudo chmod 600 mypermanentkey.pem'
+                        sh "sudo chmod 600 ${KEY_FILE}" // Change permissions for the key file
                         sh 'terraform init'
                         sh 'terraform validate'
                         sh 'terraform apply --auto-approve'
